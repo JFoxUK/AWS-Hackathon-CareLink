@@ -6,7 +6,7 @@ from decimal import Decimal
 
 # Initialize AWS resources
 dynamodb = boto3.resource('dynamodb')
-bedrock_runtime = boto3.client('bedrock-runtime', region_name='eu-north-1')
+bedrock_runtime = boto3.client('bedrock-runtime', region_name='us-east-1')
 sns = boto3.client('sns')
 runtime_sm = boto3.client('runtime.sagemaker', region_name='us-east-1')
 
@@ -40,26 +40,109 @@ def call_sagemaker_model(vitals):
         result = response['Body'].read().decode('utf-8')
         print(f"[SageMaker] Raw response body: {result}")
 
-        prediction_value = float(result.strip())
-        prediction = 1 if prediction_value >= 0.5 else 0
-        print(f"[SageMaker] Converted prediction: {prediction}")
-        return prediction
+        prediction_probability = float(result.strip())
+        model_prediction = 1 if prediction_probability >= 0.5 else 0
+        print(f"[SageMaker] Converted prediction: {model_prediction} (probability: {prediction_probability})")
+        
+        return model_prediction, prediction_probability
 
     except Exception as e:
         print(f"[SageMaker] Error: {str(e)}")
         raise
 
-def generate_alert_summary(vitals, model_prediction):
+def generate_alert_summary(vitals, model_prediction, prediction_probability):
+    try:
+        # Pull the limits here
+        heart_rate_low = 50
+        heart_rate_high = 120
+        blood_oxygen_low = 90
+        blood_oxygen_high = 100
+        temperature_low = 35
+        temperature_high = 39
+
+        prompt = (
+            f"Analyze the patient's vitals and provide a short, clear summary for a healthcare provider. "
+            f"Vitals received:\n"
+            f"- Heart Rate: {vitals['heart_rate']} bpm\n"
+            f"- Blood Oxygen: {vitals['blood_oxygen']} %\n"
+            f"- Temperature: {vitals['temperature']} °C\n\n"
+            f"AI Model Prediction:\n"
+            f"- Instability Risk Probability: {prediction_probability}\n"
+            f"- Binary Decision (0 = stable, 1 = unstable): {model_prediction}\n\n"
+            f"- The closer to 0 the less likely the patient is to be unstable.\n"
+            f"- Example: 0.5 = 50% unstable. 0.1 = 10% unstable (likely safe). 0.7 = 70% unstable (likely unstable).\n\n"
+            f"Clinical Ranges:\n"
+            f"- Heart Rate: {heart_rate_low}-{heart_rate_high} bpm\n"
+            f"- Blood Oxygen: {blood_oxygen_low}-{blood_oxygen_high} %\n"
+            f"- Temperature: {temperature_low}-{temperature_high} °C\n\n"
+            f"Summarize ONLY the probability and clinical ranges. "
+            f"Do NOT comment directly on the vitals, patient, or AI model. "
+            f"Be concise and professional."
+        )
+
+        body = {
+            "inputText": prompt,
+            "textGenerationConfig": {
+                "temperature": 0.2,
+                "maxTokenCount": 200,
+                "topP": 0.9,
+                "stopSequences": []
+            }
+        }
+
+        print(f"[Bedrock] Model ID: {model_id}")
+        print(f"[Bedrock] Request Body: {json.dumps(body)}")
+
+        response = bedrock_runtime.invoke_model(
+            modelId=model_id,
+            body=json.dumps(body),
+            contentType="application/json",
+            accept="application/json"
+        )
+
+        response_body = json.loads(response['body'].read())
+        print(f"[Bedrock] Raw response body: {response_body}")
+
+        if "results" in response_body and response_body["results"]:
+            summary = response_body["results"][0]["outputText"]
+            print(f"[Bedrock] Parsed AI summary: {summary}")
+            return summary
+        else:
+            print("[Bedrock] No AI summary found in response.")
+            return "No AI summary generated."
+
+    except Exception as e:
+        print(f"[Bedrock] Error: {str(e)}")
+        raise
+
     try:
         prompt = (
-            f"Analyze the following patient vitals and determine if there is any health risk. "
-            f"Use the AI model prediction (0 = stable, 1 = unstable) to assist your analysis. "
-            f"Return a short, clear English summary:\n\n"
-            f"Heart Rate: {vitals['heart_rate']} bpm\n"
-            f"Blood Oxygen: {vitals['blood_oxygen']} %\n"
-            f"Temperature: {vitals['temperature']} °C\n"
-            f"AI Model Prediction: {model_prediction}"
+            f"Analyze the patient's vitals and provide a short, clear summary for a healthcare provider. "
+            f"Vitals received:\n"
+            f"- Heart Rate: {vitals['heart_rate']} bpm\n"
+            f"- Blood Oxygen: {vitals['blood_oxygen']} %\n"
+            f"- Temperature: {vitals['temperature']} °C\n\n"
+            f"AI Model Prediction:\n"
+            f"- Instability Risk Probability: {prediction_probability}\n"
+            f"- Binary Decision (0 = stable, 1 = unstable): {model_prediction}\n\n"
+            f"- The closer to 0 the less likley the patient is to being unstable\n"
+            f"- Example, 0.5 a 50% chance of being unstable\n"
+            f"- Example, 0.1 a 10% chance of being unstable and therfore is not likely\n"
+            f"- Example, 0.7 a 70% chance of being unstable and therefore is likely\n"
+            f"Summarise the vitals but do not comment if they are within or out of the safe ranges. "
+            f"Comment on the probbability score and what that could mean for the patient. "
+            f"Always list out but not not compare to our results, the upper and lower limits as follows:\n"
+            f"- Heart Rate: {heart_rate_lower} - {heart_rate_upper} bpm\n"
+            f"- Blood Oxygen: {blood_oxygen_lower} - {blood_oxygen_upper} %\n"
+            f"- Temperature: {temperature_lower} - {temperature_upper} °C\n\n"
+            f"Do not comment on the binary decision. "
+            f"Do not comment on the vitals. "
+            f"Do not comment on the AI model. "
+            f"Do not comment on the patient. "
+            f"Do not comment on the healthcare provider. "
+            f"Do not fabricate issues. Be concise and professional."
         )
+
 
         body = {
             "inputText": prompt,
@@ -150,8 +233,8 @@ def lambda_handler(event, context):
 
         print(f"[Vitals] Parsed vitals: {vitals}")
 
-        model_prediction = call_sagemaker_model(vitals)
-        alert_summary = generate_alert_summary(vitals, model_prediction)
+        model_prediction, prediction_probability = call_sagemaker_model(vitals)
+        alert_summary = generate_alert_summary(vitals, model_prediction, prediction_probability)
 
         timestamp = datetime.utcnow().isoformat()
 
@@ -162,6 +245,7 @@ def lambda_handler(event, context):
             'blood_oxygen': blood_oxygen,
             'temperature': temperature,
             'model_prediction': Decimal(str(model_prediction)),
+            'prediction_probability': Decimal(str(prediction_probability)),
             'alert_summary': alert_summary
         }
 
