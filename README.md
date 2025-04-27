@@ -203,5 +203,25 @@ MIT License — Feel free to fork, contribute, and build upon CareLink!
 
 ---
 
+---
+
+## 🔗 Links
+
+[DEMO VIDEO]()
+[DEMO SCRIPT]()
+[DEVPOST SUBMISSION]()
+
+---
+
+---
+
+## ✍️ Author
+
+[GitHub](https://github.com/JFoxUK)
+[LinkedIn](https://linkedin.com/in/jfoxuk)
+[Devpost](https://devpost.com/JFoxUK)
+
+---
+
 # 🚀 Ready for Deployment!
 
