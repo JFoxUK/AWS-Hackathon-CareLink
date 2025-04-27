@@ -208,7 +208,7 @@ MIT License — Feel free to fork, contribute, and build upon CareLink!
 ## 🔗 Links
 
 [DEMO VIDEO]()
-[DEMO SCRIPT]()
+[DEMO SCRIPT](https://github.com/JFoxUK/carelink/blob/main/DEMO_SCRIPT.md)
 [DEVPOST SUBMISSION]()
 
 ---
