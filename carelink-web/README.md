@@ -1,12 +1,100 @@
-# React + Vite
+# 🌐 CareLink Web App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Built with React](https://img.shields.io/badge/Built%20With-React-blue)](https://react.dev/)
+[![Powered by AWS](https://img.shields.io/badge/Powered%20By-AWS-orange)](https://aws.amazon.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-Currently, two official plugins are available:
+A lightweight React.js client to submit patient vitals and display real-time AI health summaries, backed by AWS IoT, Lambda, SageMaker, and Bedrock.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🚀 Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Submit **Heart Rate**, **Blood Oxygen**, and **Temperature** vitals.
+- Publish vitals securely to AWS IoT Core via API Gateway and Lambda.
+- Fetch the latest AI health analysis (SageMaker + Bedrock).
+- Dynamic risk badges: ✅ Stable, ⚠️ Caution, ❌ Critical.
+- Simple, clean, healthcare-themed responsive UI.
+
+---
+
+## 🛠️ Built With
+
+- [React.js](https://react.dev/) (Vite setup)
+- [Axios](https://axios-http.com/) for API integration
+- [AWS API Gateway](https://aws.amazon.com/api-gateway/)
+- [AWS Lambda](https://aws.amazon.com/lambda/)
+- [AWS IoT Core](https://aws.amazon.com/iot-core/)
+- [Amazon SageMaker](https://aws.amazon.com/sagemaker/)
+- [Amazon Bedrock](https://aws.amazon.com/bedrock/)
+
+---
+
+## ⚡ Configuration
+
+Inside `App.jsx`, update the `API_BASE_URL` with your deployed **API Gateway** endpoint:
+
+```javascript
+const API_BASE_URL = 'https://your-api-id.execute-api.your-region.amazonaws.com/prod';
+```
+
+---
+
+## 🖥️ Local Development
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Start development server
+npm run dev
+```
+
+Visit: `http://localhost:5173`
+
+---
+
+## 🚀 Deploy in 1-Click
+
+### Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
+
+> Tip: Set your environment variable `VITE_API_BASE_URL` during Vercel setup.
+
+---
+
+### AWS Amplify
+
+[![Deploy to Amplify Console](https://oneclick.amplifyapp.com/button.svg)](https://console.aws.amazon.com/amplify/home#/deploy)
+
+> Tip: When linking GitHub repo, set a build environment variable:  
+> `VITE_API_BASE_URL = https://your-api-id.execute-api.region.amazonaws.com/prod`
+
+---
+
+## 📷 Quick Preview
+
+> _Submit vitals → Get instant stability risk → AI generates health analysis_
+
+![CareLink Web Screenshot](https://your-screenshot-link.png)
+
+---
+
+## 📜 License
+
+Licensed under the [MIT License](https://opensource.org/licenses/MIT).
+
+---
+
+## ✍️ Authors
+
+- [GitHub](https://github.com/JFoxUK)  
+- [LinkedIn](https://linkedin.com/in/jfoxuk)  
+- [Devpost](https://devpost.com/JFoxUK)
+
+---
+
+# 🚑 CareLink — Democratizing Remote Healthcare with AI + IoT
+
+---

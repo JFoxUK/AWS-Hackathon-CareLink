@@ -56,6 +56,31 @@ We built a **weighted risk model** because not all vital abnormalities are equal
 
 This enabled the SageMaker model to **prioritize the most life-threatening conditions** intelligently.
 
+### Normalized the Dataset
+During model training, we realized that the ranges of different vital signs vary massively:
+
+Heart rate values can vary from 30–200.
+
+Blood oxygen is typically 90–100.
+
+Temperature varies even less (around 35–42).
+
+Problem:
+XGBoost (and many ML algorithms) are sensitive to feature magnitude.
+Large-valued features (e.g., heart rate) can overpower smaller features (e.g., blood oxygen), leading to bias in model learning.
+
+Solution:
+✅ We normalized each feature to a 0–1 range before training.
+This ensured:
+
+Every vital sign contributed equally to the prediction.
+
+Training was faster and more stable.
+
+Final predictions were more clinically realistic and balanced.
+
+✅ After normalization, weighted labels were applied and saved into a clean CSV for SageMaker.
+
 ### Event Routing and Serialization
 - **IoT Routing:** Real-time ingestion using MQTT into AWS Lambda needed careful scaling and error handling.
 - **Serialization:** DynamoDB uses `Decimal` data types, requiring careful transformation before frontend consumption.
