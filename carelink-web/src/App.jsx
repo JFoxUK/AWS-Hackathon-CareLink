@@ -40,6 +40,16 @@ function App() {
     }
   };
 
+  const getRiskLabel = (probability) => {
+    if (probability < 0.4) {
+      return <span style={{ color: 'green' }}>✅ Stable</span>;
+    } else if (probability < 0.7) {
+      return <span style={{ color: 'orange' }}>⚠️ Caution</span>;
+    } else {
+      return <span style={{ color: 'red' }}>❌ Critical</span>;
+    }
+  };
+
   return (
     <div className="container">
       <h1>CareLink: Remote Health Monitor</h1>
@@ -64,9 +74,13 @@ function App() {
 
         {aiResult && (
           <div className="result-text">
+            {aiResult.prediction_probability !== undefined && (
+              <p><strong>Status:</strong> {getRiskLabel(aiResult.prediction_probability)}</p>
+            )}
             <p><strong>Heart Rate:</strong> {aiResult.heart_rate} bpm</p>
             <p><strong>Blood Oxygen:</strong> {aiResult.blood_oxygen} %</p>
             <p><strong>Temperature:</strong> {aiResult.temperature} °C</p>
+            <p><strong>Instability Risk Probability:</strong> {parseFloat(aiResult.prediction_probability).toFixed(3)}</p>
             <p><strong>AI Summary:</strong> {aiResult.alert_summary}</p>
           </div>
         )}
@@ -76,3 +90,4 @@ function App() {
 }
 
 export default App;
+
