@@ -68,8 +68,14 @@ existing_endpoints = sm_client.list_endpoints(NameContains=endpoint_name, MaxRes
 if existing_endpoints:
     print(f"ℹ️ Deleting existing endpoint: {endpoint_name}")
     sm_client.delete_endpoint(EndpointName=endpoint_name)
+    
+# Also delete the previous endpoint config
+existing_configs = sm_client.list_endpoint_configs(NameContains=endpoint_name, MaxResults=1)['EndpointConfigs']
+if existing_configs:
+    print(f"ℹ️ Deleting existing endpoint config: {endpoint_name}")
+    sm_client.delete_endpoint_config(EndpointConfigName=endpoint_name)
 
-# Deploy retrained model to same endpoint
+# Deploy retrained model
 print("🚀 Deploying retrained model to SageMaker endpoint...")
 xgb_estimator.deploy(
     initial_instance_count=1,
