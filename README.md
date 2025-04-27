@@ -214,7 +214,7 @@ MIT License — Feel free to fork, contribute, and build upon CareLink!
 
 ## 🔗 Links
 
-[DEMO VIDEO](https://youtu.be/G8T9yV4iqx0)  
+[DEMO VIDEO](https://youtu.be/cR94Yz0m0Eg)  
 [DEMO SCRIPT](https://github.com/JFoxUK/AWS-Hackathon-CareLink/blob/main/DEMO_SCRIPT.md)  
 [DEVPOST SUBMISSION]()
 
