@@ -71,7 +71,7 @@ It demonstrates how **next-generation connectivity (AWS IoT Core, 5G)**, **Machi
 
 **Custom Dataset:**
 - CSV file: heart rate, blood oxygen, temperature, and a calculated `label` (0 = stable, 1 = unstable).
-- **Vital Sign Weighting Logic** (NEW):
+- **Vital Sign Weighting Logic**:
 
 | Vital Sign | Condition | Threshold | Weight (0–1) | Medical Reasoning |
 |------------|------------|-----------|-------------|-------------------|
