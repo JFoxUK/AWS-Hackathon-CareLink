@@ -10,9 +10,10 @@ It demonstrates how **next-generation connectivity (AWS IoT Core, 5G) and Genera
 
 **Technologies Used:**
 - **AWS IoT Core**: Receives and routes device vitals (heart rate, blood oxygen, temperature)
-- **AWS Lambda**: Processes incoming health data and invokes AI analysis
+- **AWS Lambda**: Processes incoming health data, performs critical checks, and invokes AI analysis
 - **Amazon Bedrock (Titan Text G1 Lite)**: Analyzes vitals and generates human-readable health summaries
 - **Amazon DynamoDB**: Stores raw vitals and AI-generated alerts
+- **Amazon SNS**: Sends real-time email alerts for critical health events
 - **AWS CloudWatch**: Logs for monitoring and debugging
 
 ---
@@ -23,9 +24,11 @@ It demonstrates how **next-generation connectivity (AWS IoT Core, 5G) and Genera
 2. **AWS IoT Rule** captures the message and triggers **Lambda function**.
 3. **Lambda**:
    - Parses incoming health vitals
+   - Performs critical health threshold checks
    - Invokes **Amazon Bedrock Titan Text G1 Lite** for AI analysis
-   - Saves vitals + AI health summary into **DynamoDB**.
-4. (Optional extensions: Real-time alerts via Amazon SNS or front-end app dashboards.)
+   - Saves vitals + AI health summary into **DynamoDB**
+   - Sends **SNS email alert** if vitals exceed danger thresholds.
+4. (Optional extensions: Real-time front-end dashboards.)
 
 ---
 
@@ -37,6 +40,7 @@ It demonstrates how **next-generation connectivity (AWS IoT Core, 5G) and Genera
   - Lambda
   - DynamoDB
   - Amazon Bedrock
+  - Amazon SNS
 - Region: AWS Lambda can be deployed anywhere, but Bedrock model currently invoked from `us-east-1`.
 
 ### 2. Set Up AWS IoT Core
@@ -83,16 +87,26 @@ SELECT * FROM 'carelink/vitals'
 - Sort key: `timestamp` (String)
 - Capacity mode: On-Demand
 
-### 5. Create Lambda Function
+### 5. Create SNS Topic
+
+- Create an SNS Topic (e.g., `CareLinkAlerts`)
+- Subscribe an email address to receive critical health alerts.
+
+### 6. Create Lambda Function
 
 - Name: `CareLinkVitalsProcessor`
 - Runtime: Python 3.12
 - Environment Variables:
   - `DYNAMODB_TABLE = carelink_alerts`
   - `BEDROCK_MODEL_ID = amazon.titan-text-lite-v1`
+  - `SNS_TOPIC_ARN = [Your SNS Topic ARN]`
+  - `HEART_RATE_LIMIT = 120`
+  - `BLOOD_OXYGEN_LIMIT = 90`
+  - `TEMPERATURE_LIMIT = 39`
 - Permissions:
   - Attach `AmazonDynamoDBFullAccess`
   - Attach `AmazonBedrockInvokeFullAccess`
+  - Attach `AmazonSNSFullAccess`
 
 **Special Note:**
 If your region does not support Titan Text G1 Lite, create the Bedrock client like this:
@@ -100,14 +114,15 @@ If your region does not support Titan Text G1 Lite, create the Bedrock client li
 bedrock_runtime = boto3.client('bedrock-runtime', region_name='us-east-1')
 ```
 
-### 6. Lambda Core Logic
+### 7. Lambda Core Logic
 
 - Parse incoming vitals from event
-- Format a natural language prompt
-- Call Amazon Bedrock Titan Text G1 Lite
+- Perform clinical threshold checks for heart rate, blood oxygen, and temperature
+- Generate a natural language health summary using Bedrock
 - Save original vitals and AI health summary into DynamoDB
+- Trigger a critical alert email via SNS if thresholds are breached
 
-### 7. Testing the System
+### 8. Testing the System
 
 **Publish to MQTT Topic:**
 - Topic: `carelink/vitals`
@@ -115,20 +130,20 @@ bedrock_runtime = boto3.client('bedrock-runtime', region_name='us-east-1')
 ```json
 {
   "device_id": "carelink-health-monitor",
-  "heart_rate": 102,
-  "blood_oxygen": 93,
-  "temperature": 38.2
+  "heart_rate": 135,
+  "blood_oxygen": 85,
+  "temperature": 39.5
 }
 ```
 
-✅ The AI should respond with a health analysis summary like:
-> *"Patient vitals indicate mild tachycardia. Monitoring recommended."*
+✅ The AI should respond with a health analysis summary.
+✅ If the vitals are dangerous, you will also receive an SNS email alert!
 
 ---
 
 ## 🌟 Future Improvements
 
-- Real-time patient alerting via Amazon SNS.
+- Real-time patient alerting via Amazon SNS Mobile Push.
 - Front-end dashboard using AWS Amplify + AppSync.
 - Expand device types (e.g., blood pressure monitors, ECGs).
 - Integrate more advanced AI models via Bedrock.
@@ -156,10 +171,22 @@ bedrock_runtime = boto3.client('bedrock-runtime', region_name='us-east-1')
 | AWS Lambda Function     |
 | CareLinkVitalsProcessor  |
 |  - Parse Vitals          |
+|  - Clinical Check        |
 |  - Invoke Bedrock AI     |
 |  - Save to DynamoDB      |
 +-----------+-------------+
             |
+            |
+            ------------->------------
+            |                         |
+(optional step depending on values)   |
+            |                         |
++-----------+-------------+           |
+|  - Publish SNS Alert     |          |
++-----------+-------------+           |
+            |                         |
+            |------------<------------
+            |                     
             v
 +-------------------------+
 | AWS DynamoDB Table       |
@@ -177,3 +204,4 @@ MIT License — Feel free to fork, contribute, and build upon CareLink!
 ---
 
 # 🚀 Ready for Deployment!
+
