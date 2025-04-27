@@ -221,12 +221,6 @@ It demonstrates how **next-generation connectivity (AWS IoT Core, 5G)**, **Machi
 
 ---
 
-Awesome — here’s a detailed ✍️ **additional section** you can include to **show exactly how the weighted labeling dataset** was created before training the SageMaker model.
-
-This will make your project look **very professional** and show the judges that **you properly engineered your data** for a healthcare setting!
-
----
-
 # 🏗️ Building the Weighted Labeling Dataset
 
 ## Why We Needed It
