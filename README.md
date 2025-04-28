@@ -151,7 +151,7 @@ Test payload:
 
 # 📋 Full Updated Architecture Diagram
 
-+--------------------------+
+```+--------------------------+
 | CareLink Device/Simulator |
 | (MQTT Publish Vitals)     |
 +------------+-------------+
@@ -203,7 +203,7 @@ Test payload:
 | Amazon SNS Topic          |
 | carelink-alerts           |
 | (Email Alerts)            |
-+--------------------------+
++--------------------------+```
 
 ---
 
