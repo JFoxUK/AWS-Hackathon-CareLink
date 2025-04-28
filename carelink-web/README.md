@@ -13,7 +13,7 @@ A lightweight React.js client to submit patient vitals and display real-time AI 
 - Submit **Heart Rate**, **Blood Oxygen**, and **Temperature** vitals.
 - Publish vitals securely to AWS IoT Core via API Gateway and Lambda.
 - Fetch the latest AI health analysis (SageMaker + Bedrock).
-- Dynamic risk badges: ✅ Stable, ⚠️ Caution, ❌ Critical.
+- Dynamic risk probability: Visual percentage.
 - Simple, clean, healthcare-themed responsive UI.
 
 ---

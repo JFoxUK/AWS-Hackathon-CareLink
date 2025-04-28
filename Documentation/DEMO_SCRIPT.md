@@ -1,28 +1,31 @@
-# 💕 CareLink Hackathon Demo Script (Updated)
-
-## 🎥 CareLink Hackathon Demo Script
+# 💕 CareLink Hackathon Demo Script (Final)
 
 ## 🎬 1. Intro (30 seconds)
 
 > "Hi, I'm [Your Name], and this is **CareLink**, our submission for the AWS Breaking Barriers Hackathon 2025.  
-> CareLink demonstrates how **IoT connectivity, serverless architecture, machine learning with SageMaker, and Amazon Bedrock generative AI** can work together to create **equitable, real-time health monitoring** — even in underserved or remote communities."
+> CareLink shows how **IoT, serverless AWS services, machine learning via SageMaker, and generative AI via Bedrock** can be combined to create **equitable, real-time health monitoring** — even in remote or underserved communities."
+
+---
 
 ## 🎬 2. Quick Architecture Overview (30 seconds)
 
 > "The system works like this:  
-> - A CareLink device, or simulator, publishes patient vitals like heart rate, blood oxygen, and temperature to AWS IoT Core.  
-> - An IoT Rule triggers a Lambda function.  
-> - The Lambda function performs critical threshold checks, predicts patient stability with a **SageMaker ML model**, analyzes the vitals with **Amazon Bedrock Titan Text G1 Lite** for an AI health summary, and saves everything to DynamoDB.  
-> - If the vitals cross critical safety thresholds or the AI predicts instability, an **SNS email alert** is immediately sent to healthcare providers."
+> - Patient vitals like heart rate, blood oxygen, and temperature are sent to **AWS IoT Core**.  
+> - An IoT Rule triggers a **Lambda function**.  
+> - Lambda saves the vitals to **DynamoDB** and sends an **SNS alert** if critical thresholds are crossed.  
+> - Our React dashboard retrieves the past **3 months** of vitals, and invokes **SageMaker** to predict instability based on the **latest 24 hours** of data.  
+> - **Amazon Bedrock** then generates a full, clinically styled summary of the patient’s health history."
 
-> *[Optional: Show the architecture diagram briefly here.]*
+> *[Optional: Show the updated architecture diagram briefly.]*
+
+---
 
 ## 🎬 3. Live Demo Walkthrough (3 minutes)
 
-**Step 1: Publish MQTT Test Vitals**
+**Step 1: Publish New Vitals**
 
-- Show the AWS IoT Core Test Client.
-- Publish a message with slightly elevated vitals:
+- Open AWS IoT Core → MQTT Test Client.
+- Publish the following message:
 
 ```json
 {
@@ -33,63 +36,84 @@
 }
 ```
 
-> "Here, I’m sending simulated patient vitals that are intentionally dangerous — a heart rate of 135 and blood oxygen of 85%."
+> "Here, I'm simulating dangerous patient vitals — high heart rate and low oxygen — as if from a real-world wearable device."
 
-**Step 2: Lambda, SageMaker, and DynamoDB Reaction**
+---
 
-- Quickly flip to Lambda → Monitoring → Logs.
-- Show SageMaker model prediction in logs (0 = stable, 1 = unstable).
-- Show Bedrock's AI health summary being generated.
-- Show DynamoDB table.
+**Step 2: Lambda & DynamoDB Reaction**
 
-> "Our Lambda immediately triggered. It parsed the vitals, ran critical threshold checks, invoked **SageMaker** for a machine learning stability prediction, and generated a human-readable health analysis with **Amazon Bedrock**."
+- Open CloudWatch Logs.
+- Show Lambda execution (saving vitals to DynamoDB, SNS alert if triggered).
 
-- Show the DynamoDB record:
-  - Vitals stored
-  - AI `alert_summary` stored
-  - ML model prediction stored
+- Open DynamoDB Table (`carelink_alerts`) and show new record:
+  - `heart_rate`, `blood_oxygen`, `temperature`
+  - `timestamp`
+  - `status` field (auto-classified as "stable" or "critical" based on rules)
 
-> "All vital signs, AI analysis, and the ML prediction are stored together for easy review."
+> "CareLink ingested the vitals in real-time, performed clinical checks, saved the data, and triggered alerts if necessary — all serverless and at global scale."
 
-**Step 3: SNS Email Alert**
+---
 
-- Show the SNS email alert you received.
+**Step 3: Dashboard: AI Prediction and Summary**
 
-> "Because the patient's vitals were critical, CareLink instantly sent an SNS email alert to medical staff."
+- Open the React web app.
+- Click "Fetch Latest Vitals & AI Summary."
 
-## 🎬 4. AI vs Guardrails Insight (Important — 45 seconds)
+> "Our dashboard fetches the latest 3 months of vitals, automatically analyzes the most recent 24-hour period with **SageMaker**, and generates a full health summary with **Bedrock**."
 
-> "You'll notice something very important here:  
-> Our AI model — Titan Text G1 Lite — sometimes *understates* the risk. In one test, it suggested there was 'no immediate health concern' despite dangerously high vitals.  
-> This is realistic. General-purpose AI isn't yet certified for highly regulated fields like healthcare.  
-> That’s why CareLink uses a **hybrid approach**:  
-> - **SageMaker ML predictions** for patient stability classification.  
-> - **Generative AI** for helpful, contextual analysis.  
-> - **Hard-coded clinical thresholds** to guarantee alerts for critical conditions.  
-> This layered, "human-in-the-loop" system design is **essential for real-world, regulated, critical industries**."
+- Show:
+  - AI circular progress meter (instability %)
+  - Raw SageMaker probability displayed
+  - Bedrock AI health summary (formatted cleanly)
+  - Trend graph of vital signs over time
+
+> "The AI not only gives a risk percentage but also produces a clinically readable history review — built entirely from real patient data."
+
+---
+
+## 🎬 4. Special Engineering Highlights (Important — 60 seconds)
+
+> "During development, we realized **single vital readings aren't enough** to judge patient stability accurately.  
+> So we pivoted — instead of predicting from one reading, we now send **the latest 24 hours of vitals** into SageMaker."
+
+> "This 'fake memory' approach lets our XGBoost model spot real health trends without needing complex deep learning or RNNs,  
+> which keeps the system **fast, serverless, and low-cost**."
+
+> "We also faced challenges with **AI safety**.  
+> Generative AI like Bedrock can sometimes understate medical risks.  
+> So CareLink combines:  
+> - **SageMaker ML risk classification**  
+> - **Bedrock readable summaries**  
+> - **Hard clinical thresholds enforced in Lambda**  
+> This multi-layered approach guarantees patient safety first."
+
+---
 
 ## 🎬 5. Closing (15 seconds)
 
-> "In summary, CareLink shows how AWS connectivity, serverless computing, SageMaker ML, and Bedrock AI can democratize healthcare monitoring,  
-> while responsibly ensuring **patient safety** through built-in clinical safeguards.  
-> Thank you for considering CareLink!"
+> "In summary, CareLink shows how AWS IoT, serverless compute, machine learning, and generative AI can **democratize remote healthcare access** —  
+> responsibly, safely, and in real time.  
+> Thank you!"
+
+---
 
 # 🖊️ Recording Setup Checklist
 
 Before recording the demo video, ensure you:
 
-- [ ] Have AWS Console tabs open for:
-  - IoT Core (Test Client)
-  - Lambda Logs (CloudWatch)
-  - DynamoDB Table (`carelink_alerts`)
-  - SNS Email Inbox (ready to show the incoming alert)
-- [ ] Have a test MQTT message prepared (dangerous vitals ready to publish)
-- [ ] Fullscreen your browser (no distractions visible)
-- [ ] Clear any unrelated browser tabs
-- [ ] Keep the script nearby to reference timing and flow
-- [ ] Start recording, then flow smoothly through the demo following the script!
+- [ ] Open AWS IoT Core (Test Client)
+- [ ] Open CloudWatch Logs for Lambda
+- [ ] Open DynamoDB Table (`carelink_alerts`)
+- [ ] Open your React frontend dashboard
+- [ ] Publish a "critical" vital message live
+- [ ] Show the Lambda processing
+- [ ] Show the database record creation
+- [ ] Show the AI prediction + Bedrock summary
+- [ ] (Optional) Show SNS email alert if triggered
+- [ ] Keep browser clean, fullscreen for professional appearance
 
 ---
 
-# 🚀 Good luck from the CareLink team! 💛🚀
+# 🚀 Good luck — CareLink is ready to impress! 💛
 
+---
