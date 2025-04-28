@@ -68,7 +68,7 @@ It showcases how **next-generation connectivity (AWS IoT Core, 5G)**, **Machine 
 ### 4. SageMaker Model: Patient Stability Classifier
 
 **Custom Dataset:**
-- CSV format with heart rate, blood oxygen, temperature, and `label` (0 = stable, 1 = unstable).
+- CSV format with engineered features + stability label.
 - **Vital Sign Weighting Logic**:
 
 | Vital Sign | Condition | Threshold | Weight | Clinical Reasoning |
@@ -79,12 +79,21 @@ It showcases how **next-generation connectivity (AWS IoT Core, 5G)**, **Machine 
 | Temperature High | > 39°C | 0.6 | Suggests infection or inflammation |
 | Temperature Low | < 35°C | 0.8 | Hypothermia needs urgent treatment |
 
-**Training Details:**
-- Model: **XGBoost 1.5** (SageMaker built-in container).
-- Objective: **binary:logistic**.
-- Hyperparameters:
-  - `max_depth=5`, `eta=0.2`, `gamma=4`, `min_child_weight=6`, `subsample=0.7`, `num_round=100`
-- Endpoint: `carelink-xgboost-endpoint`.
+---
+
+# 📈 CareLink Model Feature Table
+
+| Feature Name               | Type        | Description                                                      | Range / Encoding          |
+|-----------------------------|-------------|------------------------------------------------------------------|----------------------------|
+| `heart_rate_normalized`     | Continuous  | Patient's heart rate normalized between 0–1.                    | 0.0 – 1.0                  |
+| `blood_oxygen_normalized`   | Continuous  | Patient's blood oxygen saturation normalized between 0–1.        | 0.0 – 1.0                  |
+| `temperature_normalized`    | Continuous  | Patient's body temperature normalized between 0–1.               | 0.0 – 1.0                  |
+| `hr_high`                   | Binary      | 1 if heart rate > 120 bpm, else 0.                                | 0 or 1                     |
+| `hr_low`                    | Binary      | 1 if heart rate < 50 bpm, else 0.                                 | 0 or 1                     |
+| `bo_low`                    | Binary      | 1 if blood oxygen < 90%, else 0.                                  | 0 or 1                     |
+| `temp_high`                 | Binary      | 1 if temperature > 39°C, else 0.                                  | 0 or 1                     |
+| `temp_low`                  | Binary      | 1 if temperature < 35°C, else 0.                                  | 0 or 1                     |
+| `label`                     | Target      | 1 = unstable patient, 0 = stable patient.                         | 0 or 1                     |
 
 ---
 
@@ -209,97 +218,42 @@ Test payload:
 
 ---
 
-# 🏗️ Building a Clinically Weighted Dataset
+# 📚 FAQ: Engineering CareLink's Dataset
 
-## Why It Matters
+### Why Normalize the Vitals?
 
-In healthcare, **not all vital signs are equally urgent**.  
-For example:
-- A slightly elevated heart rate may be benign.
-- Low blood oxygen almost always requires immediate intervention.
-
-We reflected this by **applying weighted clinical importance** to each vital during labeling.
-
-Rather than simple threshold breaches, we calculated a **cumulative risk score** to classify stability more realistically.
+- Different units: HR vs SpO2 vs Temperature vary in scale.
+- Normalization ensures all features contribute **equally** to predictions.
+- Prevents domination by large-value features (e.g., heart rate).
 
 ---
 
-## 📈 Vital Sign Weighting Table
+### Why Add Binary Flags for Thresholds?
 
-| Vital sign         | Threshold | Weight | Clinical Rationale                  |
-|--------------------|-----------|--------|-------------------------------------|
-| Heart Rate High    | > 120 bpm | 0.4    | Often compensatory                  |
-| Heart Rate Low     | < 50 bpm  | 0.5    | Symptomatic bradycardia dangerous   |
-| Blood Oxygen Low   | < 90%     | 0.9    | Life-threatening hypoxia            |
-| Temperature High   | > 39°C    | 0.6    | Indicates infection or inflammation |
-| Temperature Low    | < 35°C    | 0.8    | Hypothermia escalates rapidly       |
+- Binary flags make it **easier** for the ML model to spot clinical emergencies.
+- Instead of requiring deep tree-splitting, threshold breaches are **immediately obvious**.
 
 ---
 
-## ⚙️ Labeling Logic (Pseudo-code)
+### Why Weight Vital Signs Differently?
 
-```python
-risk_score = 0
-
-if heart_rate > 120:
-    risk_score += 0.4
-if heart_rate < 50:
-    risk_score += 0.5
-if blood_oxygen < 90:
-    risk_score += 0.9
-if temperature > 39:
-    risk_score += 0.6
-if temperature < 35:
-    risk_score += 0.8
-
-label = 1 if risk_score >= 0.5 else 0
-```
-
-✅ Captures both **multiple minor risks** and **single major risks**.  
-✅ Reflects **real-world triage logic**.
+- Medical reality: not all abnormalities are equally dangerous.
+- Low oxygen is way riskier than a high heart rate.
+- Weighting vital signs based on clinical urgency makes the model **much more realistic**.
 
 ---
 
-## 📦 Data Preprocessing
+### How Is Instability Determined?
 
-- Cleaned unrealistic values (e.g., HR > 300 bpm discarded).
-- Applied weighted labeling.
-- Normalized features (0–1 range) to prevent model bias.
-- Split into training (80%) and testing (20%) sets.
-- Uploaded to S3 bucket: `carelink-ai-datasets`.
+- Cumulative risk score calculated from breaches and weights.
+- Threshold of 0.5 defines "unstable" vs "stable."
+- Allows **multiple small issues** OR **one big issue** to trigger instability.
 
 ---
 
-## 🚀 Benefits of This Approach
+# 🏁 Final Thoughts
 
-- **Clinical realism:** Mirrors actual triage thinking.
-- **Improved ML generalization:** Learns vital sign interdependencies.
-- **Transparency:** Easier for healthcare providers to trust.
-
----
-
-# 📋 Mini Example
-
-| Heart Rate | Blood Oxygen | Temperature | Risk Score | Label |
-|------------|--------------|-------------|------------|-------|
-| 130        | 95%          | 37°C         | 0.4        | 0     |
-| 60         | 88%          | 36°C         | 0.9        | 1     |
-| 48         | 93%          | 36°C         | 0.5        | 1     |
-| 85         | 92%          | 34°C         | 0.8        | 1     |
-
----
-
-🧮 **Why Normalize?**  
-- Different vitals vary in range (HR vs SpO2 vs Temp).  
-- Normalization ensures **equal model attention** across features.  
-- Improves training stability and prediction quality.
-
----
-
-# 🏁 Summary
-
-CareLink’s dataset wasn’t just assembled — it was **thoughtfully engineered** to simulate real clinical environments.  
-This deliberate approach sets CareLink apart from typical hackathon projects: it was built for **trust**, **realism**, and **scalability**.
+CareLink is **not just an IoT app** — it was designed with **clinical reasoning, robust feature engineering**, and **AI safety practices** to make **real-world-ready remote healthcare possible**.
 
 ---
 
