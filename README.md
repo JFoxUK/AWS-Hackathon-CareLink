@@ -188,7 +188,7 @@ MIT License — fork, build, and improve freely!
 
 - [Demo Video](https://youtu.be/cR94Yz0m0Eg)  
 - [Demo Script](https://github.com/JFoxUK/AWS-Hackathon-CareLink/blob/main/DEMO_SCRIPT.md)  
-- [Devpost Submission]() (link coming soon)
+- [Try the app, follow the README steps to start Nova Sonic, then, the app will also open wiht Nova integrated](https://github.com/JFoxUK/AWS-Hackathon-CareLink/tree/main/carelink-web/CareLink%20App%20Using%20AWS%20Example%20of%20Nova%20Sonic/speech-to-speech)
 
 ---
 
