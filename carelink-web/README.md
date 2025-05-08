@@ -32,7 +32,9 @@ A lightweight React.js client to submit patient vitals and display real-time AI 
 
 ## ⚡ Configuration
 
-Inside `App.jsx`, update the `API_BASE_URL` with your deployed **API Gateway** endpoint:
+To try the app, follow the README steps to start Nova Sonic, then, the app will also open wiht Nova integrated.
+Also, inside `App.jsx`, update the `API_BASE_URL` with your deployed **API Gateway** endpoint.
+The steps are [here](https://github.com/JFoxUK/AWS-Hackathon-CareLink/blob/main/carelink-web/CareLink%20App%20Using%20AWS%20Example%20of%20Nova%20Sonic/speech-to-speech/workshops/README.md).
 
 
 ## 🚀 Deploy in 1-Click
