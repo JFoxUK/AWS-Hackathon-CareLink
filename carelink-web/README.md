@@ -27,32 +27,13 @@ A lightweight React.js client to submit patient vitals and display real-time AI 
 - [AWS IoT Core](https://aws.amazon.com/iot-core/)
 - [Amazon SageMaker](https://aws.amazon.com/sagemaker/)
 - [Amazon Bedrock](https://aws.amazon.com/bedrock/)
-
+- [Amazon Bedrock (Nova Sonic)](https://aws.amazon.com/bedrock/nova-sonic/)
 ---
 
 ## ⚡ Configuration
 
 Inside `App.jsx`, update the `API_BASE_URL` with your deployed **API Gateway** endpoint:
 
-```javascript
-const API_BASE_URL = 'https://your-api-id.execute-api.your-region.amazonaws.com/prod';
-```
-
----
-
-## 🖥️ Local Development
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Start development server
-npm run dev
-```
-
-Visit: `http://localhost:5173`
-
----
 
 ## 🚀 Deploy in 1-Click
 

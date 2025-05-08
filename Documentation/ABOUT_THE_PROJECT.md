@@ -21,6 +21,7 @@ CareLink collects **heart rate**, **blood oxygen**, and **temperature** readings
 - **Amazon DynamoDB** to store incoming vital signs over time.
 - **Amazon SageMaker** to **predict patient instability risk** based on recent vitals.
 - **Amazon Bedrock (Titan Text G1 Lite)** to **summarize 3 months of patient history** into a clear, clinical-style report.
+- **Amazon Bedrock (Nova Sonic)** to **have a human like conversation about the data with an Ai Agent** in order to give the user a better more easy to understand experience.
 - **Amazon SNS** to send **real-time alerts** when dangerous conditions are detected.
 - **API Gateway** and a **React.js + Vite** frontend to allow caregivers to publish and view AI assessments in real time.
 
@@ -137,6 +138,8 @@ We fixed this by:
   ➔ SageMaker (Predict risk on 24hr window)
        |
   ➔ Bedrock (Summarize last 24hrs of vitals)
+       |
+  ➔ Bedrock (Nova Sonic) (Have a human like conversation about the data with an Ai Agent)
        |
   ➔ React Frontend (Displays AI results beautifully with latest 3 months of data in a chart)
 ```

@@ -15,6 +15,7 @@ It demonstrates how **next-generation connectivity (AWS IoT Core)**, **Machine L
 - **Amazon SNS** — Sends instant alerts if critical thresholds are breached.
 - **Amazon SageMaker** — Predicts the probability of patient instability using machine learning.
 - **Amazon Bedrock (Titan Text G1 Lite)** — Generates clinical-style summaries based on patient history.
+- **Amazon Bedrock (Nova Sonic)** — Have a human like conversation about the data with an Ai Agent.
 - **AWS CloudWatch** — Logs and monitors system operations.
 
 ---
@@ -39,7 +40,7 @@ It demonstrates how **next-generation connectivity (AWS IoT Core)**, **Machine L
      - Raw prediction probability (exact model output)
      - Bedrock AI Clinical Summary
      - Graphs of vitals over time for the past 3 months of data
-
+     - Have a human like conversation about the data with an Ai Agent
 ---
 
 ## 🧠 Machine Learning Model: SageMaker Stability Classifier
@@ -122,6 +123,8 @@ It demonstrates how **next-generation connectivity (AWS IoT Core)**, **Machine L
   ➔ SageMaker (Predict risk based on latest 24h vitals)
        |
   ➔ Bedrock (Summarize last 3 months of vitals)
+       |
+  ➔ Bedrock (Nova Sonic) (Have a human like conversation about the data with an Ai Agent)
        |
   ➔ React Frontend (Display meter, graph, raw score, AI summary)
 ```

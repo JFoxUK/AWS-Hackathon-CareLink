@@ -14,7 +14,8 @@
 > - An IoT Rule triggers a **Lambda function**.  
 > - Lambda saves the vitals to **DynamoDB** and sends an **SNS alert** if critical thresholds are crossed.  
 > - Our React dashboard retrieves the past **3 months** of vitals, and invokes **SageMaker** to predict instability based on the **latest 24 hours** of data.  
-> - **Amazon Bedrock** then generates a full, clinically styled summary of the patient’s health history."
+> - **Amazon Bedrock** then generates a full, clinically styled summary of the patient’s health history.
+> - **Amazon Bedrock** also has a human like conversation about the data with an Ai Agent.
 
 > *[Optional: Show the updated architecture diagram briefly.]*
 
@@ -59,13 +60,14 @@
 - Open the React web app.
 - Click "Fetch Latest Vitals & AI Summary."
 
-> "Our dashboard fetches the latest 3 months of vitals, automatically analyzes the most recent 24-hour period with **SageMaker**, and generates a full health summary with **Bedrock**."
+> "Our dashboard fetches the latest 3 months of vitals, automatically analyzes the most recent 24-hour period with **SageMaker**, and generates a full health summary with **Bedrock**. If the user wants to, the AI agent can also have a human like conversation about the data with an Ai Agent." 
 
 - Show:
   - AI circular progress meter (instability %)
   - Raw SageMaker probability displayed
   - Bedrock AI health summary (formatted cleanly)
   - Trend graph of vital signs over time
+  - Human like conversation about the data with an Ai Agent
 
 > "The AI not only gives a risk percentage but also produces a clinically readable history review — built entirely from real patient data."
 
